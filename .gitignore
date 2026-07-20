@@ -1,0 +1,7 @@
+Git/
+Microsoft VS Code/
+.venv/
+__pycache__/
+*.pyc
+output/
+data/
