@@ -11,6 +11,7 @@ DARREICHUNGSFORMEN = {
     "SPR",
     "SLB",
     "CR",
+    "GEL",
     "SIR",
     "PLV",
     "BTL",
@@ -32,27 +33,48 @@ def parse_artikel(text):
     marke = woerter[0]
 
     form = ""
-
     packung = None
-
     staerken = []
 
-    for wort in woerter:
+    i = 0
 
+    while i < len(woerter):
+
+        wort = woerter[i]
+
+        # Darreichungsform
         if wort in DARREICHUNGSFORMEN:
             form = wort
 
-        if re.fullmatch(r"\d+", wort):
-            zahl = int(wort)
+        # Zahlen + Einheiten (400 MG, 0,5 MG, 1000 IE ...)
+        if re.fullmatch(r"\d+(?:[.,]\d+)?", wort):
 
-            if zahl <= 200:
-                packung = zahl
+            wert = float(wort.replace(",", "."))
 
-        if re.fullmatch(r"\d+MG", wort):
-            staerken.append(int(wort[:-2]))
+            if i + 1 < len(woerter):
 
-        if re.fullmatch(r"\d+MCG", wort):
-            staerken.append(int(wort[:-3]))
+                einheit = woerter[i + 1]
+
+                if einheit in {
+                    "MG",
+                    "MCG",
+                    "G",
+                    "ML",
+                    "IE"
+                }:
+                    staerken.append((wert, einheit))
+                    i += 2
+                    continue
+
+            # Packungsgröße (nur wenn keine Stärke)
+            if wert.is_integer():
+
+                zahl = int(wert)
+
+                if 1 <= zahl <= 200:
+                    packung = zahl
+
+        i += 1
 
     return {
         "marke": marke,

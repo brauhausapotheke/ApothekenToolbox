@@ -11,8 +11,6 @@ def lese_tabellen(ods_datei):
 
     artikel_liste = []
 
-    excel = pd.ExcelFile(ods_datei, engine="odf")
-
     relevante_tabellen = [
         "Aktuell",
         "Kosmetik",
@@ -31,7 +29,7 @@ def lese_tabellen(ods_datei):
             engine="odf"
         )
 
-        for _, zeile in df.iterrows():
+        for index, zeile in df.iterrows():
 
             artikelname = zeile.iloc[1]
 
@@ -39,6 +37,14 @@ def lese_tabellen(ods_datei):
                 continue
 
             artikelname = str(artikelname).strip()
+
+            if artikelname.startswith("Grippostad C"):
+                print(
+                    f"DEBUG: {artikelname} | "
+                    f"Blatt={tabelle} | "
+                    f"Pandas-Index={index} | "
+                    f"Gespeicherte Zeile={index + 2}"
+                )
 
             normalisiert = normalisiere(artikelname)
             parsergebnis = parse_artikel(normalisiert)
@@ -48,6 +54,9 @@ def lese_tabellen(ods_datei):
                     name=artikelname,
                     bezeichnung=artikelname,
                     packung="",
+
+                    blatt=tabelle,
+                    zeile=index + 2,
 
                     normalisiert=normalisiert,
                     normalisierte_bezeichnung=normalisiert,

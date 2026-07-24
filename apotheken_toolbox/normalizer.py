@@ -32,49 +32,75 @@ ERSETZUNGEN = {
     "SPRAY": "SPR",
     "SALBE": "SLB",
     "CREME": "CR",
+    "GEL": "GEL",
     "SIRUP": "SIR",
     "ERKAELTUNGSSAFT": "ERKAELT SIR",
     "HEISSGETRAENK": "HEISSGETR",
     "PULVER": "PLV",
 
-    # -------------------------
     # Verpackung
-    # -------------------------
-
     "STUECK": "ST",
+    "STK": "ST",
     "BEUTEL": "BTL",
 
-    # -------------------------
-    # Füllwörter
-    # -------------------------
-
+    # Schreibweisen
     "FUER": "",
 }
 
-# Diese Wörter unterscheiden Varianten,
-# sind aber für den Produktabgleich meist nicht entscheidend.
-# Wir entfernen sie komplett.
 IGNORIEREN = {
+
+    # Geschmacksrichtungen
     "CLASSIC",
-    "KLASSIK",
     "CLASSIK",
-
-    "ZITRONE",
+    "KLASSIK",
     "LEMON",
-
+    "ZITRONE",
     "HONIG",
     "ORANGE",
     "KIRSCHE",
     "KIRSCH",
     "WALDBEER",
     "WALDBEERE",
+    "MINZE",
+    "MENTHOL",
 
+    # Werbetexte
+    "GEGEN",
+    "FUER",
+    "ZUR",
+    "ZUM",
+    "MIT",
+    "OHNE",
+    "GEEIGNET",
+    "ERWACHSENE",
+    "ERWACHSENER",
+    "ERWACHSENEN",
+    "KINDER",
+    "KIND",
+    "BABY",
+    "BABIES",
+
+    # Varianten
+    "ODER",
+
+    # Marketing
+    "SONNENBRAND",
+    "INSEKTENSTICHE",
+    "INSEKTENSTICH",
+    "JUCKREIZ",
+    "SCHWELLUNG",
+    "SCHWELLUNGEN",
+
+    # Geräte
+    "IPHONE",
+    "ANDROID",
+    "USB",
+    "LIGHTNING",
+
+    # Zuckerfrei
     "ZUCKERFREI",
     "ZUCKERFR",
     "ZUFR",
-
-    "MINZE",
-    "MENTHOL",
 }
 
 
@@ -93,28 +119,27 @@ def normalisiere(text):
             .replace("ß", "SS")
     )
 
-    # Klammern entfernen
+    # Klammerinhalte entfernen
     text = re.sub(r"\(.*?\)", " ", text)
 
     # Satzzeichen vereinheitlichen
-    text = re.sub(r"[,:;.+/()-]", " ", text)
+    text = re.sub(r"[,:;.+/()\-]", " ", text)
 
     # Einheiten trennen
-    text = re.sub(r"(\d)ML", r"\1 ML", text)
-    text = re.sub(r"(\d)MG", r"\1 MG", text)
-    text = re.sub(r"(\d)MCG", r"\1 MCG", text)
-    text = re.sub(r"(\d)G", r"\1 G", text)
+    text = re.sub(r"(\d)(MG|MCG|ML|G|KG|L|IE)", r"\1 \2", text)
 
+    # Mehrfachleerzeichen
     text = re.sub(r"\s+", " ", text).strip()
 
-    # Synonyme ersetzen
+    # Synonyme
     for alt, neu in ERSETZUNGEN.items():
         text = re.sub(rf"\b{re.escape(alt)}\b", neu, text)
 
-    # Irrelevante Begriffe entfernen
+    # Zu ignorierende Wörter entfernen
     for wort in IGNORIEREN:
         text = re.sub(rf"\b{re.escape(wort)}\b", " ", text)
 
+    # Mehrfachleerzeichen erneut bereinigen
     text = re.sub(r"\s+", " ", text).strip()
 
     return text

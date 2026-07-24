@@ -7,6 +7,9 @@ from apotheken_toolbox.matcher import (
     fuzzy_match
 )
 from apotheken_toolbox.report import erstelle_trefferanalyse
+from apotheken_toolbox.ods_writer import schreibe_preise
+
+import os
 
 
 def aktualisieren(ods_datei, csv_datei):
@@ -56,6 +59,17 @@ def aktualisieren(ods_datei, csv_datei):
             artikel.trefferart = "EXAKT"
             artikel.fuzzy_score = 100.0
 
+            if artikel.name.startswith("Grippostad C"):
+                print()
+                print("========== DEBUG GRIPPOSTAD ==========")
+                print("Trefferart :", "EXAKT")
+                print("Ornamentum :", artikel.name)
+                print("AVS        :", avs_artikel.name)
+                print("AVP        :", avs_artikel.avp)
+                print("AEP        :", avs_artikel.aep)
+                print("======================================")
+                print()
+
             treffer_exakt += 1
             continue
 
@@ -74,6 +88,18 @@ def aktualisieren(ods_datei, csv_datei):
             artikel.treffer = True
             artikel.trefferart = "FUZZY"
             artikel.fuzzy_score = round(score * 100, 1)
+
+            if artikel.name.startswith("Grippostad C"):
+                print()
+                print("========== DEBUG GRIPPOSTAD ==========")
+                print("Trefferart :", "FUZZY")
+                print("Score      :", round(score * 100, 1))
+                print("Ornamentum :", artikel.name)
+                print("AVS        :", avs_artikel.name)
+                print("AVP        :", avs_artikel.avp)
+                print("AEP        :", avs_artikel.aep)
+                print("======================================")
+                print()
 
             treffer_fuzzy += 1
             continue
@@ -101,7 +127,21 @@ def aktualisieren(ods_datei, csv_datei):
 
     print()
     print("Erstelle Trefferanalyse...")
-
     erstelle_trefferanalyse(ornamentum)
 
+    print()
+
+    # ---------------------------
+    # Aktualisierte ODS schreiben
+    # ---------------------------
+    basis, ext = os.path.splitext(ods_datei)
+    ziel_datei = basis + "_aktualisiert" + ext
+
+    schreibe_preise(
+        ods_datei,
+        ziel_datei,
+        ornamentum
+    )
+
+    print()
     print("Fertig.")
